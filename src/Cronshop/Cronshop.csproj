@@ -62,7 +62,10 @@
     <Compile Include="CatalogChange.cs" />
     <Compile Include="CatalogChangedEventArgs.cs" />
     <Compile Include="Catalogs\DirectoryCatalog.cs" />
+    <Compile Include="CronCronshopContext.cs" />
+    <Compile Include="CronshopContext.cs" />
     <Compile Include="CronshopScript.cs" />
+    <Compile Include="CronshopServer.cs" />
     <Compile Include="IScriptCatalog.cs" />
     <Compile Include="JobConfigurator.cs" />
     <Compile Include="ScriptCatalogBase.cs" />
