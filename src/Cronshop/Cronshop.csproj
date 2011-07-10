@@ -59,8 +59,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CatalogChange.cs" />
+    <Compile Include="CatalogChangedEventArgs.cs" />
+    <Compile Include="Catalogs\DirectoryCatalog.cs" />
+    <Compile Include="CronshopScript.cs" />
+    <Compile Include="IScriptCatalog.cs" />
+    <Compile Include="ScriptCatalogBase.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="CronshopScheduler.cs" />
+    <Compile Include="CronshopJob.cs" />
+    <Compile Include="SafeJobFactory.cs" />
+    <Compile Include="JobInfo.cs" />
+    <Compile Include="MainJobMonitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
