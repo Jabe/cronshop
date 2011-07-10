@@ -53,7 +53,7 @@ namespace Cronshop
 
         public void Dispose()
         {
-            Stop();
+            Scheduler.Shutdown(true);
 
             _catalog.CatalogChanged -= CatalogChanged;
         }
@@ -179,10 +179,7 @@ namespace Cronshop
 
         public void Stop()
         {
-            if (!Scheduler.IsShutdown)
-            {
-                Scheduler.Shutdown(true);
-            }
+            Scheduler.Standby();
         }
 
         public void InterruptJob(string jobName)
