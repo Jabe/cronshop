@@ -21,8 +21,6 @@ namespace Cronshop
         {
             // for now -- this is less painful on temp files and file locks.
             CSScript.CacheEnabled = false;
-            CSScript.KeepCompilingHistory = false;
-            CSScript.ShareHostRefAssemblies = false;
             CSScript.GlobalSettings.InMemoryAsssembly = true;
         }
 
@@ -35,8 +33,8 @@ namespace Cronshop
 
             ISchedulerFactory factory = new StdSchedulerFactory();
             _scheduler = factory.GetScheduler();
-            _scheduler.JobFactory = new SafeJobFactory();
-            _scheduler.AddGlobalJobListener(new MainJobMonitor(_readOnlyJobs));
+            Scheduler.JobFactory = new SafeJobFactory();
+            Scheduler.AddGlobalJobListener(new MainJobMonitor(_readOnlyJobs));
 
             LoadJobsFromCatalog();
         }
@@ -44,6 +42,11 @@ namespace Cronshop
         public ReadOnlyCollection<JobInfo> Jobs
         {
             get { return _readOnlyJobs; }
+        }
+
+        protected internal IScheduler Scheduler
+        {
+            get { return _scheduler; }
         }
 
         #region IDisposable Members
@@ -114,28 +117,35 @@ namespace Cronshop
 
             foreach (Type type in types)
             {
-                // create the instance to get the schedule
-                var instance = (CronshopJob)Activator.CreateInstance(type);
+                JobConfigurator configurator;
 
-                var configurator = new JobConfigurator();
-                instance.Configure(configurator);
+                // create the instance to get the schedule
+                using (var instance = (CronshopJob) Activator.CreateInstance(type))
+                {
+                    configurator = new JobConfigurator();
+                    instance.Configure(configurator);
+                }
 
                 string name = script.FullPath;
 
                 var detail = new JobDetail(name, null, type) {Durable = true};
                 detail.JobDataMap[InternalScriptKey] = script;
 
-                _scheduler.AddJob(detail, false);
+                Scheduler.AddJob(detail, false);
 
                 var triggers = new List<Trigger>();
 
                 foreach (string cron in configurator.Crons)
                 {
-                    var trigger = new CronTrigger(name + "-" + Guid.NewGuid(), null, cron) {JobName = name};
+                    var trigger = new CronTrigger(name + "-" + Guid.NewGuid(), null, cron)
+                                      {
+                                          JobName = name,
+                                          MisfireInstruction = MisfireInstruction.CronTrigger.DoNothing,
+                                      };
 
                     triggers.Add(trigger);
 
-                    _scheduler.ScheduleJob(trigger);
+                    Scheduler.ScheduleJob(trigger);
                 }
 
                 _jobs.Add(new JobInfo(script, detail, triggers));
@@ -158,37 +168,37 @@ namespace Cronshop
 
         private void UnscheduleScript(CronshopScript script)
         {
-            bool success = _scheduler.DeleteJob(script.FullPath, null);
+            bool success = Scheduler.DeleteJob(script.FullPath, null);
             Console.WriteLine("UnscheduleScript: " + script.FullPath + " = " + success);
         }
 
         public void Start()
         {
-            _scheduler.Start();
+            Scheduler.Start();
         }
 
         public void Stop()
         {
-            if (!_scheduler.IsShutdown)
+            if (!Scheduler.IsShutdown)
             {
-                _scheduler.Shutdown(true);
+                Scheduler.Shutdown(true);
             }
         }
 
         public void InterruptJob(string jobName)
         {
-            _scheduler.Interrupt(jobName, null);
+            Scheduler.Interrupt(jobName, null);
         }
 
         public void Pause(string jobName = null)
         {
             if (jobName == null)
             {
-                _scheduler.PauseAll();
+                Scheduler.PauseAll();
             }
             else
             {
-                _scheduler.PauseJob(jobName, null);
+                Scheduler.PauseJob(jobName, null);
             }
         }
 
@@ -196,11 +206,11 @@ namespace Cronshop
         {
             if (jobName == null)
             {
-                _scheduler.ResumeAll();
+                Scheduler.ResumeAll();
             }
             else
             {
-                _scheduler.ResumeJob(jobName, null);
+                Scheduler.ResumeJob(jobName, null);
             }
         }
     }

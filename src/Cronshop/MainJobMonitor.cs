@@ -8,11 +8,11 @@ namespace Cronshop
 {
     public class MainJobMonitor : IJobListener
     {
-        private readonly ReadOnlyCollection<JobInfo> _jobResults;
+        private readonly ReadOnlyCollection<JobInfo> _jobInfo;
 
-        public MainJobMonitor(ReadOnlyCollection<JobInfo> jobResults)
+        public MainJobMonitor(ReadOnlyCollection<JobInfo> jobInfo)
         {
-            _jobResults = jobResults;
+            _jobInfo = jobInfo;
         }
 
         #region IJobListener Members
@@ -55,8 +55,7 @@ namespace Cronshop
 
         private JobInfo GetJobInfo(JobExecutionContext context)
         {
-            JobInfo info = _jobResults.First(x => x.JobDetail.Name == context.JobDetail.Name);
-            return info;
+            return _jobInfo.First(x => x.JobDetail.Name == context.JobDetail.Name);
         }
     }
 }

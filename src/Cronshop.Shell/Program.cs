@@ -19,9 +19,11 @@ namespace Cronshop.Shell
             while (line != "quit")
             {
                 Console.WriteLine("commands:");
-                Console.WriteLine("quit    pauseall    resumeall   dup   rem");
+                Console.WriteLine("quit    pauseall    resumeall");
 
                 line = Console.ReadLine();
+
+                Console.WriteLine(scheduler.Jobs.First().IsRunning);
 
                 if (line == "pauseall")
                 {
