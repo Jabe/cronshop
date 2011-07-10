@@ -114,17 +114,31 @@ namespace Cronshop
 
             foreach (Type type in types)
             {
+                // create the instance to get the schedule
+                var instance = (CronshopJob)Activator.CreateInstance(type);
+
+                var configurator = new JobConfigurator();
+                instance.Configure(configurator);
+
                 string name = script.FullPath;
 
-                var detail = new JobDetail(name, null, type);
+                var detail = new JobDetail(name, null, type) {Durable = true};
                 detail.JobDataMap[InternalScriptKey] = script;
 
-                var trigger = new CronTrigger(name + "-" + Guid.NewGuid(), null, "*/5 * * * * ?");
+                _scheduler.AddJob(detail, false);
 
-                var triggers = new Trigger[] {trigger};
+                var triggers = new List<Trigger>();
+
+                foreach (string cron in configurator.Crons)
+                {
+                    var trigger = new CronTrigger(name + "-" + Guid.NewGuid(), null, cron) {JobName = name};
+
+                    triggers.Add(trigger);
+
+                    _scheduler.ScheduleJob(trigger);
+                }
+
                 _jobs.Add(new JobInfo(script, detail, triggers));
-
-                _scheduler.ScheduleJob(detail, trigger);
             }
         }
 

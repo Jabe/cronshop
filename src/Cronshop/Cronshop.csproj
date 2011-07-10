@@ -64,6 +64,7 @@
     <Compile Include="Catalogs\DirectoryCatalog.cs" />
     <Compile Include="CronshopScript.cs" />
     <Compile Include="IScriptCatalog.cs" />
+    <Compile Include="JobConfigurator.cs" />
     <Compile Include="ScriptCatalogBase.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

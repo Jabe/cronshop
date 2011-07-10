@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Quartz;
 
@@ -9,7 +10,7 @@ namespace Cronshop
         private TimeSpan _lastDuration;
         private DateTimeOffset _lastEnded;
 
-        public JobInfo(CronshopScript script, JobDetail jobDetail, Trigger[] triggers)
+        public JobInfo(CronshopScript script, JobDetail jobDetail, ICollection<Trigger> triggers)
         {
             Script = script;
             JobDetail = jobDetail;
@@ -18,7 +19,7 @@ namespace Cronshop
 
         public CronshopScript Script { get; private set; }
         public JobDetail JobDetail { get; private set; }
-        public Trigger[] Triggers { get; private set; }
+        public ICollection<Trigger> Triggers { get; private set; }
 
         public bool IsRunning { get; set; }
         public object LastResult { get; set; }
@@ -31,7 +32,7 @@ namespace Cronshop
         {
             get
             {
-                if (Triggers.Length == 0) return DateTimeOffset.MinValue;
+                if (Triggers.Count == 0) return DateTimeOffset.MinValue;
 
                 DateTime time = Triggers.Min(x => x.GetFireTimeAfter(DateTime.UtcNow) ?? DateTime.MinValue);
                 return new DateTimeOffset(time, TimeSpan.Zero);

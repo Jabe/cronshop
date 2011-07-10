@@ -38,6 +38,7 @@ namespace Cronshop
 
         #endregion
 
+        public abstract void Configure(JobConfigurator config);
         public abstract object ExecuteJob(JobExecutionContext context);
     }
 }
