@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using Niob;
 using Niob.SimpleHtml;
-using RazorEngine;
 
 namespace Cronshop
 {
@@ -32,7 +31,7 @@ namespace Cronshop
 
         protected virtual void MainResponse()
         {
-            AppendTemplate("Hello, @Model.Dave.", new {Dave = "Dave"});
+            AppendHtml("Hello, Dave.");
         }
 
         protected virtual void EndResponse()
@@ -49,14 +48,6 @@ namespace Cronshop
         protected void AppendHtml(string rawHtml, params object[] format)
         {
             Response.AppendHtml(rawHtml, format);
-        }
-
-        protected void AppendTemplate(string template, dynamic model = null)
-        {
-            var writer = new StreamWriter(Response.ContentStream);
-            writer.Write(Razor.Parse(template, model));
-
-            writer.Flush();
         }
     }
 }
