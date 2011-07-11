@@ -11,7 +11,8 @@ namespace Cronshop
 {
     public class CronshopScheduler : IDisposable
     {
-        private const string InternalScriptKey = "__InternalScript";
+        internal const string InternalFriendlyName = "__InternalFriendlyName";
+
         private readonly IScriptCatalog _catalog;
         private readonly List<JobInfo> _jobs = new List<JobInfo>();
         private readonly ReadOnlyCollection<JobInfo> _readOnlyJobs;
@@ -62,8 +63,6 @@ namespace Cronshop
 
         private void CatalogChanged(object sender, CatalogChangedEventArgs e)
         {
-            Console.WriteLine("event");
-
             foreach (var change in e.Changes)
             {
                 Console.Write("change: " + change.Item1);
@@ -72,7 +71,7 @@ namespace Cronshop
 
             while (e.Changes.Count > 0)
             {
-                var change = e.Changes.Dequeue();
+                Tuple<CronshopScript, CatalogChange> change = e.Changes.Dequeue();
 
                 if (change.Item2 == CatalogChange.Deleted)
                 {
@@ -102,14 +101,12 @@ namespace Cronshop
 
         private void ScheduleScript(CronshopScript script)
         {
-            Assembly assembly = SaveLoad(script);
+            Assembly assembly = LoadAssembly(script);
 
             if (assembly == null)
             {
                 return;
             }
-
-            Console.WriteLine("ScheduleScript: " + script);
 
             // find implementations of CronshopJob
             IEnumerable<Type> types = assembly.GetTypes()
@@ -126,18 +123,20 @@ namespace Cronshop
                     instance.Configure(configurator);
                 }
 
-                string name = script.FullPath;
+                string name = script.Name + "/" + type.Name;
+                string friendlyName = script.FriendlyName + "/" + type.Name;
 
                 var detail = new JobDetail(name, null, type) {Durable = true};
-                detail.JobDataMap[InternalScriptKey] = script;
+                detail.JobDataMap[InternalFriendlyName] = friendlyName;
 
                 Scheduler.AddJob(detail, false);
+                Console.WriteLine("ScheduleJob: " + detail.Name);
 
                 var triggers = new List<Trigger>();
 
                 foreach (string cron in configurator.Crons)
                 {
-                    var trigger = new CronTrigger(name + "-" + Guid.NewGuid(), null, cron)
+                    var trigger = new CronTrigger(name + "/" + Guid.NewGuid(), null, cron)
                                       {
                                           JobName = name,
                                           MisfireInstruction = MisfireInstruction.CronTrigger.DoNothing,
@@ -152,7 +151,7 @@ namespace Cronshop
             }
         }
 
-        private static Assembly SaveLoad(CronshopScript script)
+        private static Assembly LoadAssembly(CronshopScript script)
         {
             try
             {
@@ -168,8 +167,17 @@ namespace Cronshop
 
         private void UnscheduleScript(CronshopScript script)
         {
-            bool success = Scheduler.DeleteJob(script.FullPath, null);
-            Console.WriteLine("UnscheduleScript: " + script.FullPath + " = " + success);
+            JobInfo[] infos = _jobs
+                .Where(x => x.Script.FullPath == script.FullPath)
+                .ToArray();
+
+            foreach (JobInfo info in infos)
+            {
+                bool success = Scheduler.DeleteJob(info.JobDetail.Name, null);
+                Console.WriteLine("DeleteJob: " + info.JobDetail.Name + " " + (success ? "success" : "FAILED"));
+
+                _jobs.Remove(info);
+            }
         }
 
         public void Start()

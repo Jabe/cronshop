@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Niob;
 
 namespace Cronshop
@@ -27,14 +28,14 @@ namespace Cronshop
             AppendHtml(@"<th>Last Duration</th><th>Next Exec</th><th>Last Result</th>");
             AppendHtml(@"</tr>");
 
-            foreach (JobInfo job in Scheduler.Jobs)
+            foreach (JobInfo job in Scheduler.Jobs.OrderBy(x => x.FriendlyName))
             {
                 string result = (job.LastResult != null) ? job.LastResult.ToString() : "n/a";
 
                 AppendHtml("<tr>");
 
                 AppendHtml("<td>{0}</td>", job.IsRunning ? @"R" : "");
-                AppendHtml("<td>{0}</td>", Encode(job.JobDetail.Name));
+                AppendHtml("<td>{0}</td>", Encode(job.FriendlyName));
                 AppendHtml("<td>{0}</td>", Encode(job.LastStarted.ToString()));
                 AppendHtml("<td>{0}</td>", Encode(job.LastDuration.ToString()));
                 AppendHtml("<td>{0}</td>", Encode(job.NextExecution.ToString()));

@@ -14,22 +14,22 @@ namespace Cronshop.Catalogs
         private readonly object _syncLock = new object();
         private readonly object _watcherTimerLock = new object();
 
-        private CronshopScript[] _scripts;
+        private ICollection<CronshopScript> _scripts;
         private Timer _timer;
         private FileSystemWatcher _watcher;
         private Timer _watcherTimer;
 
-        public DirectoryCatalog(string path,
+        public DirectoryCatalog(string directoryPath,
                                 string searchPattern = "*.ccs",
                                 SearchOption searchOption = SearchOption.AllDirectories,
                                 bool watchChanges = true)
         {
-            if (!Directory.Exists(path))
+            if (!Directory.Exists(directoryPath))
             {
-                throw new DirectoryNotFoundException("Catalog directory not found: " + Path);
+                throw new DirectoryNotFoundException("Catalog directory not found: " + DirectoryPath);
             }
 
-            Path = System.IO.Path.GetFullPath(path);
+            DirectoryPath = Path.GetFullPath(directoryPath);
             SearchPattern = searchPattern;
             SearchOption = searchOption;
             WatchChanges = watchChanges;
@@ -39,7 +39,7 @@ namespace Cronshop.Catalogs
                 _watcherTimer = new Timer(DeferWatcherEventsFor) {AutoReset = false};
                 _watcherTimer.Elapsed += TimerElapsed;
 
-                _watcher = new FileSystemWatcher(Path)
+                _watcher = new FileSystemWatcher(DirectoryPath)
                                {
                                    IncludeSubdirectories = (SearchOption == SearchOption.AllDirectories),
                                    EnableRaisingEvents = true,
@@ -67,7 +67,7 @@ namespace Cronshop.Catalogs
             _timer.Start();
         }
 
-        public string Path { get; private set; }
+        public string DirectoryPath { get; private set; }
         public string SearchPattern { get; private set; }
         public SearchOption SearchOption { get; private set; }
         public bool WatchChanges { get; private set; }
@@ -127,11 +127,11 @@ namespace Cronshop.Catalogs
             }
         }
 
-        private CronshopScript[] LoadScriptsFromPath()
+        private ICollection<CronshopScript> LoadScriptsFromPath()
         {
             return Directory
-                .EnumerateFiles(Path, SearchPattern, SearchOption)
-                .Select(path => new CronshopScript(path))
+                .EnumerateFiles(DirectoryPath, SearchPattern, SearchOption)
+                .Select(f => new CronshopScript(f) {FriendlyName = Path.GetFileName(f)})
                 .ToArray();
         }
 
@@ -139,8 +139,8 @@ namespace Cronshop.Catalogs
         {
             lock (_syncLock)
             {
-                CronshopScript[] oldScripts = _scripts;
-                CronshopScript[] newScripts = LoadScriptsFromPath();
+                ICollection<CronshopScript> oldScripts = _scripts;
+                ICollection<CronshopScript> newScripts = LoadScriptsFromPath();
 
                 // the following stuff should be optimized...
                 string[] oldPaths = oldScripts.Select(x => x.FullPath).ToArray();

@@ -7,18 +7,31 @@ namespace Cronshop
 {
     public class CronshopScript
     {
+        private string _friendlyName;
+
         public CronshopScript(string fullPath)
         {
             FullPath = fullPath;
             ScriptHash = GetScriptHash(FullPath);
         }
 
+        public string Name
+        {
+            get { return FullPath.Replace('\\', '/'); }
+        }
+
         public string FullPath { get; private set; }
         public string ScriptHash { get; private set; }
 
+        public string FriendlyName
+        {
+            get { return _friendlyName ?? Name; }
+            set { _friendlyName = value; }
+        }
+
         public override string ToString()
         {
-            return string.Format("{0} [{1}]", "name", ScriptHash);
+            return FriendlyName;
         }
 
         private static string GetScriptHash(string fullPath)

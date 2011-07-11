@@ -17,6 +17,11 @@ namespace Cronshop
             Triggers = triggers;
         }
 
+        public string FriendlyName
+        {
+            get { return (string) JobDetail.JobDataMap[CronshopScheduler.InternalFriendlyName]; }
+        }
+
         public CronshopScript Script { get; private set; }
         public JobDetail JobDetail { get; private set; }
         public ICollection<Trigger> Triggers { get; private set; }
