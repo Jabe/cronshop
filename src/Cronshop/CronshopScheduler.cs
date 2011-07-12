@@ -110,7 +110,7 @@ namespace Cronshop
 
             // find implementations of CronshopJob
             IEnumerable<Type> types = assembly.GetTypes()
-                .Where(t => typeof (CronshopJob).IsAssignableFrom(t));
+                .Where(t => typeof (CronshopJob).IsAssignableFrom(t) && !t.IsAbstract);
 
             foreach (Type type in types)
             {
