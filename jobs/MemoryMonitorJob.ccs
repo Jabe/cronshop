@@ -1,0 +1,20 @@
+//css_import _base.ccs;
+
+using System;
+using Cronshop;
+using Quartz;
+
+public class MemoryMonitorJob : CronshopJob
+{
+    public override void Configure(JobConfigurator config)
+    {
+        config.AddCron("*/5 * * * * ?");
+    }
+    
+    public override object ExecuteJob(JobExecutionContext context)
+    {
+        // demo mode on
+        System.Threading.Thread.Sleep(3000);
+        return string.Format("{0:f2} MiB", GC.GetTotalMemory(false) / (1024.0*1024.0));
+    }
+}
