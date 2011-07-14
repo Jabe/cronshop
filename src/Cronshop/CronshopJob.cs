@@ -4,7 +4,7 @@ using Quartz;
 
 namespace Cronshop
 {
-    public abstract class CronshopJob : IInterruptableJob, IDisposable
+    public abstract class CronshopJob : IStatefulJob, IInterruptableJob, IDisposable
     {
         private readonly CancellationTokenSource _source = new CancellationTokenSource();
 
