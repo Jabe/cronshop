@@ -23,9 +23,13 @@ namespace Cronshop
             }
 
             AppendHtml(@"<table style=""width: 100%;"">");
-            AppendHtml(@"<tr style=""text-align: left;"">");
-            AppendHtml(@"<th style=""width: 1em;""></th><th>Name</th><th>Last Started</th>");
-            AppendHtml(@"<th>Last Duration</th><th>Next Exec</th><th>Last Result</th>");
+            AppendHtml(@"<tr>");
+            AppendHtml(@"<th style=""width: 1em;""></th>");
+            AppendHtml(@"<th style=""text-align: left;"">Name</th>");
+            AppendHtml(@"<th style=""text-align: left;"">Last Execution</th>");
+            AppendHtml(@"<th style=""text-align: left;"">Next Execution</th>");
+            AppendHtml(@"<th style=""text-align: left;"">Last Duration</th>");
+            AppendHtml(@"<th style=""text-align: left;"">Last Result</th>");
             AppendHtml(@"</tr>");
 
             foreach (JobInfo job in Scheduler.Jobs.OrderBy(x => x.FriendlyName))
@@ -36,15 +40,29 @@ namespace Cronshop
 
                 AppendHtml("<td>{0}</td>", job.IsRunning ? @"R" : "");
                 AppendHtml("<td>{0}</td>", Encode(job.FriendlyName));
-                AppendHtml("<td>{0}</td>", Encode(job.LastStarted.ToString()));
-                AppendHtml("<td>{0}</td>", Encode(job.LastDuration.ToString()));
-                AppendHtml("<td>{0}</td>", Encode(job.NextExecution.ToString()));
+                AppendHtml("<td>{0}</td>", Encode(ConvertTime(job.LastStarted)));
+                AppendHtml("<td>{0}</td>", Encode(ConvertTime(job.NextExecution)));
+                AppendHtml("<td>{0}</td>", Encode(ConvertDuration(job)));
                 AppendHtml("<td>{0}</td>", Encode(result));
 
                 AppendHtml("</tr>");
             }
 
             AppendHtml("</table>");
+        }
+
+        private string ConvertDuration(JobInfo info)
+        {
+            if (info.LastStarted == DateTimeOffset.MinValue) return "n/a";
+
+            return info.LastDuration.ToStringAuto();
+        }
+
+        private static string ConvertTime(DateTimeOffset time)
+        {
+            if (time == DateTimeOffset.MinValue) return "n/a";
+
+            return time.ToLocalTime().ToString("s").Replace("T", " ");
         }
     }
 }
