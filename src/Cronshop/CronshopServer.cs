@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Niob;
+using Niob.SimpleRouting;
 
 namespace Cronshop
 {
@@ -10,9 +11,17 @@ namespace Cronshop
     {
         public CronshopServer()
         {
+            Router = new Router
+                          {
+                              {"root", "/"},
+                              {"cron", "/cron"},
+                              {"all", "*"},
+                          };
+
             RequestAccepted += IncomingRequestAccepted;
         }
 
+        public Router Router { get; private set; }
         public CronshopScheduler Scheduler { get; set; }
 
         private void IncomingRequestAccepted(object sender, RequestEventArgs e)
@@ -22,9 +31,11 @@ namespace Cronshop
 
         protected virtual void HandleRequest(HttpRequest request, HttpResponse response)
         {
+            RouteMatch rm = Router.GetFirstHit(request.Url);
+
             CronshopContext context;
 
-            if (request.Uri.StartsWith("/cron", StringComparison.OrdinalIgnoreCase))
+            if (rm.Route.Name == "cron")
             {
                 context = new CronCronshopContext(request, response) {Scheduler = Scheduler};
             }
