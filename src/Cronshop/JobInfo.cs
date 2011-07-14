@@ -7,9 +7,6 @@ namespace Cronshop
 {
     public class JobInfo
     {
-        private TimeSpan _lastDuration;
-        private DateTimeOffset _lastEnded;
-
         public JobInfo(CronshopScript script, JobDetail jobDetail, ICollection<Trigger> triggers)
         {
             Script = script;
