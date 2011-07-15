@@ -35,6 +35,11 @@ namespace Cronshop
             if (!routeMatch.Values.TryGetValue("token", out token))
                 return false;
 
+            return IsValid(token);
+        }
+
+        public static bool IsValid(string token)
+        {
             return Store.TryRemove(token, out token);
         }
     }
