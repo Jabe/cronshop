@@ -7,6 +7,9 @@ namespace Cronshop
 {
     public static class Token
     {
+        // this is disposable but used in a static class. just look away.
+        private static readonly RandomNumberGenerator Rng = RandomNumberGenerator.Create();
+
         private static readonly ConcurrentDictionary<string, string> Store =
             new ConcurrentDictionary<string, string>();
 
@@ -14,10 +17,7 @@ namespace Cronshop
         {
             var buffer = new byte[8];
 
-            using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(buffer);
-            }
+            Rng.GetBytes(buffer);
 
             string token = BitConverter.ToString(buffer).Replace("-", "");
 
