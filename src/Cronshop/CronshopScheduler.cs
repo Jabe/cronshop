@@ -190,6 +190,23 @@ namespace Cronshop
             Scheduler.Standby();
         }
 
+        public object ExecuteJob(string jobName)
+        {
+            JobDetail detail = Scheduler.GetJobDetail(jobName, null);
+
+            try
+            {
+                using (var instance = (CronshopJob)Activator.CreateInstance(detail.JobType))
+                {
+                    return instance.ExecuteJob(null);
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public void InterruptJob(string jobName)
         {
             Scheduler.Interrupt(jobName, null);

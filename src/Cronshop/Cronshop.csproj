@@ -69,6 +69,7 @@
     <Compile Include="SafeJobFactory.cs" />
     <Compile Include="JobInfo.cs" />
     <Compile Include="MainJobMonitor.cs" />
+    <Compile Include="Token.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

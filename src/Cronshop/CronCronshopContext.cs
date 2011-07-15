@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Niob;
+using Niob.SimpleHtml;
 
 namespace Cronshop
 {
@@ -22,9 +23,29 @@ namespace Cronshop
                 return;
             }
 
+            if (Token.IsValid(RouteMatch))
+            {
+                string action = GetParam("action");
+
+                if (action == "execute")
+                {
+                    string id = GetParam("id");
+
+                    if (id != null)
+                    {
+                        object result = Scheduler.ExecuteJob(id);
+
+                        AppendHtml(@"<pre>");
+                        AppendHtml(@"Result: {0}", Encode((result ?? "n/a").ToString()));
+                        AppendHtml(@"</pre>");
+                    }
+                }
+            }
+
             AppendHtml(@"<table style=""width: 100%;"">");
             AppendHtml(@"<tr>");
             AppendHtml(@"<th style=""width: 1em;""></th>");
+            AppendHtml(@"<th style=""width: 0.7em;""></th>");
             AppendHtml(@"<th style=""text-align: left;"">Name</th>");
             AppendHtml(@"<th style=""text-align: left;"">Last Execution</th>");
             AppendHtml(@"<th style=""text-align: left;"">Next Execution</th>");
@@ -37,6 +58,12 @@ namespace Cronshop
                 string result = (job.LastResult != null) ? job.LastResult.ToString() : "n/a";
 
                 AppendHtml("<tr>");
+
+                string execute = string.Format("/cron/execute/{0}/{1}", 
+                    Token.GetNew(), 
+                    Uri.EscapeDataString(job.JobDetail.Name));
+
+                AppendHtml(@"<td><a href=""{0}"">E</a></td>", execute);
 
                 AppendHtml("<td>{0}</td>", job.IsRunning ? @"R" : "");
                 AppendHtml("<td>{0}</td>", Encode(job.FriendlyName));

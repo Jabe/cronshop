@@ -14,7 +14,7 @@ public class MemoryMonitorJob : CronshopJob
     public override object ExecuteJob(JobExecutionContext context)
     {
         // demo mode on
-        System.Threading.Thread.Sleep(3000);
+        System.Threading.Thread.Sleep(500);
         return string.Format("{0:f2} MiB", GC.GetTotalMemory(false) / (1024.0*1024.0));
     }
 }

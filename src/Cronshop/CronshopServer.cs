@@ -14,7 +14,7 @@ namespace Cronshop
             Router = new Router
                           {
                               {"root", "/"},
-                              {"cron", "/cron"},
+                              {"cron", "/cron/{action}/{token}/{id}"},
                               {"all", "*"},
                           };
 
@@ -44,6 +44,7 @@ namespace Cronshop
                 context = new CronshopContext(request, response);
             }
 
+            context.RouteMatch = rm;
             context.BeginResponse();
         }
     }
