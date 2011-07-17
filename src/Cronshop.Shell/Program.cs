@@ -11,7 +11,7 @@ namespace Cronshop.Shell
     {
         private static void Main(string[] args)
         {
-            var binding = new Binding(IPAddress.Loopback, 8080) {SupportsKeepAlive = false};
+            var binding = new Binding(IPAddress.Loopback, 8080);
             var server = new CronshopServer();
             server.Bindings.Add(binding);
 
