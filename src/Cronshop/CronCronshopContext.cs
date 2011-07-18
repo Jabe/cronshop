@@ -26,12 +26,11 @@ namespace Cronshop
             if (Token.IsValid(RouteMatch))
             {
                 string action = GetParam("action");
+                string id = GetParam("id");
 
-                if (action == "execute")
+                if (id != null)
                 {
-                    string id = GetParam("id");
-
-                    if (id != null)
+                    if (action == "execute")
                     {
                         object result = Scheduler.ExecuteJob(id);
 
@@ -39,12 +38,28 @@ namespace Cronshop
                         AppendHtml(@"Result: {0}", Encode((result ?? "n/a").ToString()));
                         AppendHtml(@"</pre>");
                     }
+                    else if (action == "pause")
+                    {
+                        Scheduler.Pause(id);
+
+                        AppendHtml(@"<pre>");
+                        AppendHtml(@"Paused: {0}", Encode(id));
+                        AppendHtml(@"</pre>");
+                    }
+                    else if (action == "resume")
+                    {
+                        Scheduler.Resume(id);
+
+                        AppendHtml(@"<pre>");
+                        AppendHtml(@"Resume: {0}", Encode(id));
+                        AppendHtml(@"</pre>");
+                    }
                 }
             }
 
             AppendHtml(@"<table style=""width: 100%;"">");
             AppendHtml(@"<tr>");
-            AppendHtml(@"<th style=""width: 1em;""></th>");
+            AppendHtml(@"<th style=""width: 3em;""></th>");
             AppendHtml(@"<th style=""width: 0.7em;""></th>");
             AppendHtml(@"<th style=""text-align: left;"">Name</th>");
             AppendHtml(@"<th style=""text-align: left;"">Last Execution</th>");
@@ -59,11 +74,23 @@ namespace Cronshop
 
                 AppendHtml("<tr>");
 
-                string execute = string.Format("/cron/execute/{0}/{1}", 
-                    Token.GetNew(), 
+                string execute = string.Format("/cron/execute/{0}/{1}",
+                    Token.GetNew(),
                     Uri.EscapeDataString(job.JobDetail.Name));
 
-                AppendHtml(@"<td><a href=""{0}"">E</a></td>", execute);
+                string pause = string.Format("/cron/pause/{0}/{1}",
+                    Token.GetNew(),
+                    Uri.EscapeDataString(job.JobDetail.Name));
+
+                string resume = string.Format("/cron/resume/{0}/{1}",
+                    Token.GetNew(),
+                    Uri.EscapeDataString(job.JobDetail.Name));
+
+                AppendHtml(@"<td>");
+                AppendHtml(@"<a href=""{0}"">E</a> ", execute);
+                AppendHtml(@"<a href=""{0}"">P</a> ", pause);
+                AppendHtml(@"<a href=""{0}"">R</a> ", resume);
+                AppendHtml(@"</td>");
 
                 AppendHtml("<td>{0}</td>", job.IsRunning ? @"R" : "");
                 AppendHtml("<td>{0}</td>", Encode(job.FriendlyName));

@@ -8,13 +8,19 @@ public class MemoryMonitorJob : CronshopJob
 {
     public override void Configure(JobConfigurator config)
     {
-        config.AddCron("*/5 * * * * ?");
+        config.AddCron("*/2 * * * * ?");
     }
     
     public override object ExecuteJob(JobExecutionContext context)
     {
+        if (context != null)
+        {
+            Console.WriteLine(context.ScheduledFireTimeUtc);
+        }
+        
         // demo mode on
         System.Threading.Thread.Sleep(500);
+        Console.WriteLine("ping");
         return string.Format("{0:f2} MiB", GC.GetTotalMemory(false) / (1024.0*1024.0));
     }
 }
