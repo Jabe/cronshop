@@ -193,10 +193,15 @@ namespace Cronshop
         public object ExecuteJob(string jobName)
         {
             JobDetail detail = Scheduler.GetJobDetail(jobName, null);
+            
+            if (detail == null)
+            {
+                return null;
+            }
 
             try
             {
-                using (var instance = (CronshopJob)Activator.CreateInstance(detail.JobType))
+                using (var instance = (CronshopJob) Activator.CreateInstance(detail.JobType))
                 {
                     return instance.ExecuteJob(null);
                 }
