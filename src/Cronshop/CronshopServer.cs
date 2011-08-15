@@ -9,14 +9,15 @@ namespace Cronshop
 {
     public class CronshopServer : NiobServer
     {
-        public CronshopServer()
+        public CronshopServer(int dosPeriodInSeconds = 20, int dosThreshold = 20)
+            : base(dosPeriodInSeconds, dosThreshold)
         {
             Router = new Router
-                          {
-                              {"root", "/"},
-                              {"cron", "/cron/{action}/{token}/{id}"},
-                              {"all", "*"},
-                          };
+                         {
+                             {"root", "/"},
+                             {"cron", "/cron/{action}/{token}/{id}"},
+                             {"all", "*"},
+                         };
 
             RequestAccepted += IncomingRequestAccepted;
         }
