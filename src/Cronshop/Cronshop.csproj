@@ -37,9 +37,6 @@
     <Reference Include="CSScriptLibrary">
       <HintPath>..\..\lib\CSScriptLibrary.dll</HintPath>
     </Reference>
-    <Reference Include="Niob">
-      <HintPath>..\..\lib\Niob.dll</HintPath>
-    </Reference>
     <Reference Include="Quartz">
       <HintPath>..\packages\Quartz.1.0.3\lib\3.5\Quartz.dll</HintPath>
     </Reference>
@@ -73,6 +70,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\lib\niob\src\Niob\Niob.csproj">
+      <Project>{327F0FD6-1E61-4DC7-B6E9-BFFB863362E6}</Project>
+      <Name>Niob</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

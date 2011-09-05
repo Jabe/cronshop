@@ -49,10 +49,6 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Niob, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Niob.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -66,6 +62,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\lib\niob\src\Niob\Niob.csproj">
+      <Project>{327F0FD6-1E61-4DC7-B6E9-BFFB863362E6}</Project>
+      <Name>Niob</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Cronshop\Cronshop.csproj">
       <Project>{53824BA0-5A76-491F-B52F-4973FA744677}</Project>
       <Name>Cronshop</Name>

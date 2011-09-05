@@ -1,0 +1,3 @@
+[submodule "lib/niob"]
+	path = lib/niob
+	url = git://github.com/Jabe/niob.git

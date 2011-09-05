@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cronshop", "Cronshop\Cronsh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cronshop.Shell", "Cronshop.Shell\Cronshop.Shell.csproj", "{65A9A0E8-C3DD-45AE-9EB9-A8DE85B69B7F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Niob", "..\lib\niob\src\Niob\Niob.csproj", "{327F0FD6-1E61-4DC7-B6E9-BFFB863362E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{65A9A0E8-C3DD-45AE-9EB9-A8DE85B69B7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{65A9A0E8-C3DD-45AE-9EB9-A8DE85B69B7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{65A9A0E8-C3DD-45AE-9EB9-A8DE85B69B7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{327F0FD6-1E61-4DC7-B6E9-BFFB863362E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{327F0FD6-1E61-4DC7-B6E9-BFFB863362E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{327F0FD6-1E61-4DC7-B6E9-BFFB863362E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{327F0FD6-1E61-4DC7-B6E9-BFFB863362E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
