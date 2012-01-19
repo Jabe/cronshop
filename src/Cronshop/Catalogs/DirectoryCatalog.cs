@@ -6,7 +6,7 @@ using System.Timers;
 
 namespace Cronshop.Catalogs
 {
-    public class DirectoryCatalog : ScriptCatalogBase, IDisposable
+    public class DirectoryCatalog : ScriptCatalogBase
     {
         private const int ForceScanEvery = 60*1000;
         private const int DeferWatcherEventsFor = 100;
@@ -79,7 +79,7 @@ namespace Cronshop.Catalogs
 
         #region IDisposable Members
 
-        public void Dispose()
+        public override void Dispose()
         {
             // tidy up events too, helps gc.
             if (_watcherTimer != null)

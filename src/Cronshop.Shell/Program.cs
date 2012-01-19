@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using Cronshop.Catalogs;
 using Niob;
@@ -11,46 +9,37 @@ namespace Cronshop.Shell
     {
         private static void Main(string[] args)
         {
-            var binding = new Binding(IPAddress.Loopback, 8080);
-            var server = new CronshopServer();
-            server.Bindings.Add(binding);
+            IScriptCatalog catalog = new DirectoryCatalog(@"..\..\..\..\jobs");
+            var server = new CronshopServer {Bindings = {new Binding(IPAddress.Loopback, 8080)}};
+            var system = new CronshopSystem(catalog, server);
 
-            server.Start();
-
-            var catalog = new DirectoryCatalog(@"..\..\..\..\jobs");
-            var scheduler = new CronshopScheduler(catalog);
-
-            server.Scheduler = scheduler;
-
-            scheduler.Start();
-
-            string line = "";
-
-            while (line != "quit")
+            using (catalog)
+            using (server)
+            using (system)
             {
-                Console.WriteLine("commands:");
-                Console.WriteLine("quit    pauseall    resumeall");
+                system.StartAll();
 
-                line = Console.ReadLine();
+                string line = "";
 
-                Console.WriteLine(scheduler.Jobs.First().IsRunning);
-
-                if (line == "pauseall")
+                while (line != "quit")
                 {
-                    scheduler.Pause();
+                    Console.WriteLine("commands:");
+                    Console.WriteLine("quit    pauseall    resumeall");
+
+                    line = Console.ReadLine();
+
+                    if (line == "pauseall")
+                    {
+                        system.PauseJobs();
+                    }
+                    else if (line == "resumeall")
+                    {
+                        system.ResumeJobs();
+                    }
                 }
-                else if (line == "resumeall")
-                {
-                    scheduler.Resume();
-                }
+
+                system.StopAll();
             }
-
-            // stop
-            scheduler.Dispose();
-            server.Scheduler = null;
-            catalog.Dispose();
-
-            server.Dispose();
         }
     }
 }

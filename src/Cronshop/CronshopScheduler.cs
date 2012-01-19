@@ -9,7 +9,7 @@ using Quartz.Impl;
 
 namespace Cronshop
 {
-    public class CronshopScheduler : IDisposable
+    public class CronshopScheduler : ICronshopScheduler
     {
         internal const string InternalFriendlyName = "__InternalFriendlyName";
 
@@ -40,23 +40,84 @@ namespace Cronshop
             LoadJobsFromCatalog();
         }
 
-        public ReadOnlyCollection<JobInfo> Jobs
-        {
-            get { return _readOnlyJobs; }
-        }
-
         protected internal IScheduler Scheduler
         {
             get { return _scheduler; }
         }
 
-        #region IDisposable Members
+        #region ICronshopScheduler Members
 
         public void Dispose()
         {
             Scheduler.Shutdown(true);
 
             _catalog.CatalogChanged -= CatalogChanged;
+        }
+
+        public IEnumerable<JobInfo> Jobs
+        {
+            get { return _readOnlyJobs; }
+        }
+
+        public void Start()
+        {
+            Scheduler.Start();
+        }
+
+        public void Stop()
+        {
+            Scheduler.Standby();
+        }
+
+        public object ExecuteJob(string jobName)
+        {
+            JobDetail detail = Scheduler.GetJobDetail(jobName, null);
+
+            if (detail == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                using (var instance = (CronshopJob) Activator.CreateInstance(detail.JobType))
+                {
+                    return instance.ExecuteJob(null);
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public void InterruptJob(string jobName)
+        {
+            Scheduler.Interrupt(jobName, null);
+        }
+
+        public void Pause(string jobName = null)
+        {
+            if (jobName == null)
+            {
+                Scheduler.PauseAll();
+            }
+            else
+            {
+                Scheduler.PauseJob(jobName, null);
+            }
+        }
+
+        public void Resume(string jobName = null)
+        {
+            if (jobName == null)
+            {
+                Scheduler.ResumeAll();
+            }
+            else
+            {
+                Scheduler.ResumeJob(jobName, null);
+            }
         }
 
         #endregion
@@ -177,67 +238,6 @@ namespace Cronshop
                 Console.WriteLine("DeleteJob: " + info.JobDetail.Name + " " + (success ? "success" : "FAILED"));
 
                 _jobs.Remove(info);
-            }
-        }
-
-        public void Start()
-        {
-            Scheduler.Start();
-        }
-
-        public void Stop()
-        {
-            Scheduler.Standby();
-        }
-
-        public object ExecuteJob(string jobName)
-        {
-            JobDetail detail = Scheduler.GetJobDetail(jobName, null);
-            
-            if (detail == null)
-            {
-                return null;
-            }
-
-            try
-            {
-                using (var instance = (CronshopJob) Activator.CreateInstance(detail.JobType))
-                {
-                    return instance.ExecuteJob(null);
-                }
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        public void InterruptJob(string jobName)
-        {
-            Scheduler.Interrupt(jobName, null);
-        }
-
-        public void Pause(string jobName = null)
-        {
-            if (jobName == null)
-            {
-                Scheduler.PauseAll();
-            }
-            else
-            {
-                Scheduler.PauseJob(jobName, null);
-            }
-        }
-
-        public void Resume(string jobName = null)
-        {
-            if (jobName == null)
-            {
-                Scheduler.ResumeAll();
-            }
-            else
-            {
-                Scheduler.ResumeJob(jobName, null);
             }
         }
     }

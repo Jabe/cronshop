@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Cronshop
 {
-    public interface IScriptCatalog
+    public interface IScriptCatalog : IDisposable
     {
         IEnumerable<CronshopScript> Scripts { get; }
         event EventHandler<CatalogChangedEventArgs> CatalogChanged;

@@ -11,7 +11,7 @@ namespace Cronshop
         {
         }
 
-        public CronshopScheduler Scheduler { get; set; }
+        public ICronshopScheduler Scheduler { get; set; }
 
         protected override void MainResponse()
         {

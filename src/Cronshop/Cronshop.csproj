@@ -56,6 +56,8 @@
     <Compile Include="CronshopContext.cs" />
     <Compile Include="CronshopScript.cs" />
     <Compile Include="CronshopServer.cs" />
+    <Compile Include="CronshopSystem.cs" />
+    <Compile Include="ICronshopScheduler.cs" />
     <Compile Include="IScriptCatalog.cs" />
     <Compile Include="JobConfigurator.cs" />
     <Compile Include="ScriptCatalogBase.cs" />

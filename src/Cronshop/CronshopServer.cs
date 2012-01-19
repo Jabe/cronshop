@@ -23,7 +23,7 @@ namespace Cronshop
         }
 
         public Router Router { get; private set; }
-        public CronshopScheduler Scheduler { get; set; }
+        public ICronshopScheduler Scheduler { get; set; }
 
         private void IncomingRequestAccepted(object sender, RequestEventArgs e)
         {

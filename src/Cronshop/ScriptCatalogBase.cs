@@ -9,6 +9,7 @@ namespace Cronshop
 
         public abstract IEnumerable<CronshopScript> Scripts { get; }
         public abstract event EventHandler<CatalogChangedEventArgs> CatalogChanged;
+        public abstract void Dispose();
 
         #endregion
 
