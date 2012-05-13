@@ -1,21 +1,21 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using CSScriptLibrary;
 using Quartz;
 using Quartz.Impl;
+using Quartz.Impl.Triggers;
 
 namespace Cronshop
 {
     public class CronshopScheduler : ICronshopScheduler
     {
-        internal const string InternalFriendlyName = "__InternalFriendlyName";
+        internal const string CronshopDefaultGroup = "Job";
 
         private readonly IScriptCatalog _catalog;
-        private readonly List<JobInfo> _jobs = new List<JobInfo>();
-        private readonly ReadOnlyCollection<JobInfo> _readOnlyJobs;
+        private readonly IDictionary<JobKey, JobInfo> _jobs = new Dictionary<JobKey, JobInfo>();
         private readonly IScheduler _scheduler;
 
         static CronshopScheduler()
@@ -30,12 +30,10 @@ namespace Cronshop
             _catalog = catalog;
             _catalog.CatalogChanged += CatalogChanged;
 
-            _readOnlyJobs = new ReadOnlyCollection<JobInfo>(_jobs);
-
             ISchedulerFactory factory = new StdSchedulerFactory();
             _scheduler = factory.GetScheduler();
             Scheduler.JobFactory = new SafeJobFactory();
-            Scheduler.AddGlobalJobListener(new MainJobMonitor(_readOnlyJobs));
+            Scheduler.ListenerManager.AddJobListener(new MainJobMonitor(_jobs));
 
             LoadJobsFromCatalog();
         }
@@ -56,7 +54,7 @@ namespace Cronshop
 
         public IEnumerable<JobInfo> Jobs
         {
-            get { return _readOnlyJobs; }
+            get { return _jobs.Values; }
         }
 
         public void Start()
@@ -69,9 +67,9 @@ namespace Cronshop
             Scheduler.Standby();
         }
 
-        public object ExecuteJob(string jobName)
+        public object ExecuteJob(JobKey jobKey)
         {
-            JobDetail detail = Scheduler.GetJobDetail(jobName, null);
+            IJobDetail detail = Scheduler.GetJobDetail(jobKey);
 
             if (detail == null)
             {
@@ -91,32 +89,32 @@ namespace Cronshop
             }
         }
 
-        public void InterruptJob(string jobName)
+        public void InterruptJob(JobKey jobKey)
         {
-            Scheduler.Interrupt(jobName, null);
+            Scheduler.Interrupt(jobKey);
         }
 
-        public void Pause(string jobName = null)
+        public void Pause(JobKey jobKey = null)
         {
-            if (jobName == null)
+            if (jobKey == null)
             {
                 Scheduler.PauseAll();
             }
             else
             {
-                Scheduler.PauseJob(jobName, null);
+                Scheduler.PauseJob(jobKey);
             }
         }
 
-        public void Resume(string jobName = null)
+        public void Resume(JobKey jobKey = null)
         {
-            if (jobName == null)
+            if (jobKey == null)
             {
                 Scheduler.ResumeAll();
             }
             else
             {
-                Scheduler.ResumeJob(jobName, null);
+                Scheduler.ResumeJob(jobKey);
             }
         }
 
@@ -184,22 +182,20 @@ namespace Cronshop
                     instance.Configure(configurator);
                 }
 
-                string name = script.Name + "/" + type.Name;
-                string friendlyName = script.FriendlyName + "/" + type.Name;
+                string name = JobInfo.BuildJobName(script, type);
 
-                var detail = new JobDetail(name, null, type) {Durable = true};
-                detail.JobDataMap[InternalFriendlyName] = friendlyName;
+                var detail = new JobDetailImpl(name, CronshopDefaultGroup, type) {Durable = true};
 
                 Scheduler.AddJob(detail, false);
-                Console.WriteLine("ScheduleJob: " + detail.Name);
+                Console.WriteLine("ScheduleJob: " + detail.Key);
 
-                var triggers = new List<Trigger>();
+                var triggers = new List<ITrigger>();
 
                 foreach (string cron in configurator.Crons)
                 {
-                    var trigger = new CronTrigger(name + "/" + Guid.NewGuid(), null, cron)
+                    var trigger = new CronTriggerImpl(name + @"." + Guid.NewGuid(), CronshopDefaultGroup, cron)
                                       {
-                                          JobName = name,
+                                          JobKey = detail.Key,
                                           MisfireInstruction = MisfireInstruction.CronTrigger.DoNothing,
                                       };
 
@@ -208,7 +204,7 @@ namespace Cronshop
                     Scheduler.ScheduleJob(trigger);
                 }
 
-                _jobs.Add(new JobInfo(script, detail, triggers));
+                _jobs.Add(detail.Key, new JobInfo(script, detail, triggers));
             }
         }
 
@@ -228,16 +224,16 @@ namespace Cronshop
 
         private void UnscheduleScript(CronshopScript script)
         {
-            JobInfo[] infos = _jobs
-                .Where(x => x.Script.FullPath == script.FullPath)
+            KeyValuePair<JobKey, JobInfo>[] keys = _jobs
+                .Where(x => x.Value.Script.FullPath == script.FullPath)
                 .ToArray();
 
-            foreach (JobInfo info in infos)
+            foreach (KeyValuePair<JobKey, JobInfo> tuple in keys)
             {
-                bool success = Scheduler.DeleteJob(info.JobDetail.Name, null);
-                Console.WriteLine("DeleteJob: " + info.JobDetail.Name + " " + (success ? "success" : "FAILED"));
+                bool success = Scheduler.DeleteJob(tuple.Value.JobDetail.Key);
+                Console.WriteLine("DeleteJob: " + tuple.Value.JobDetail.Key + " " + (success ? "success" : "FAILED"));
 
-                _jobs.Remove(info);
+                _jobs.Remove(tuple.Key);
             }
         }
     }

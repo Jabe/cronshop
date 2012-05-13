@@ -4,7 +4,8 @@ using Quartz;
 
 namespace Cronshop
 {
-    public abstract class CronshopJob : IStatefulJob, IInterruptableJob, IDisposable
+    [DisallowConcurrentExecution]
+    public abstract class CronshopJob : IInterruptableJob, IDisposable
     {
         private readonly CancellationTokenSource _source = new CancellationTokenSource();
 
@@ -31,7 +32,7 @@ namespace Cronshop
             _source.Cancel();
         }
 
-        public void Execute(JobExecutionContext context)
+        public void Execute(IJobExecutionContext context)
         {
             context.Result = ExecuteJob(context);
         }
@@ -39,6 +40,6 @@ namespace Cronshop
         #endregion
 
         public abstract void Configure(JobConfigurator config);
-        public abstract object ExecuteJob(JobExecutionContext context);
+        public abstract object ExecuteJob(IJobExecutionContext context);
     }
 }

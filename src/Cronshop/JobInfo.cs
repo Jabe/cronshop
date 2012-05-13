@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Quartz;
 
@@ -7,21 +8,16 @@ namespace Cronshop
 {
     public class JobInfo
     {
-        public JobInfo(CronshopScript script, JobDetail jobDetail, ICollection<Trigger> triggers)
+        public JobInfo(CronshopScript script, IJobDetail jobDetail, ICollection<ITrigger> triggers)
         {
             Script = script;
             JobDetail = jobDetail;
             Triggers = triggers;
         }
 
-        public string FriendlyName
-        {
-            get { return (string) JobDetail.JobDataMap[CronshopScheduler.InternalFriendlyName]; }
-        }
-
         public CronshopScript Script { get; private set; }
-        public JobDetail JobDetail { get; private set; }
-        public ICollection<Trigger> Triggers { get; private set; }
+        public IJobDetail JobDetail { get; private set; }
+        public ICollection<ITrigger> Triggers { get; private set; }
 
         public bool IsRunning { get; set; }
         public object LastResult { get; set; }
@@ -36,9 +32,13 @@ namespace Cronshop
             {
                 if (Triggers.Count == 0) return DateTimeOffset.MinValue;
 
-                DateTime time = Triggers.Min(x => x.GetFireTimeAfter(DateTime.UtcNow) ?? DateTime.MinValue);
-                return new DateTimeOffset(time, TimeSpan.Zero);
+                return Triggers.Min(x => x.GetFireTimeAfter(DateTime.UtcNow) ?? DateTime.MinValue);
             }
+        }
+
+        internal static string BuildJobName(CronshopScript script, Type type)
+        {
+            return Path.GetFileNameWithoutExtension(script.FullPath) + @"." + type.Name;
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Niob;
 using Niob.SimpleHtml;
+using Quartz;
 
 namespace Cronshop
 {
@@ -27,12 +28,13 @@ namespace Cronshop
             {
                 string action = GetParam("action");
                 string id = GetParam("id");
+                JobKey key = id.ToJobKey();
 
-                if (id != null)
+                if (key != null)
                 {
                     if (action == "execute")
                     {
-                        object result = Scheduler.ExecuteJob(id);
+                        object result = Scheduler.ExecuteJob(key);
 
                         AppendHtml(@"<pre>");
                         AppendHtml(@"Result: {0}", Encode((result ?? "n/a").ToString()));
@@ -40,7 +42,7 @@ namespace Cronshop
                     }
                     else if (action == "pause")
                     {
-                        Scheduler.Pause(id);
+                        Scheduler.Pause(key);
 
                         AppendHtml(@"<pre>");
                         AppendHtml(@"Paused: {0}", Encode(id));
@@ -48,7 +50,7 @@ namespace Cronshop
                     }
                     else if (action == "resume")
                     {
-                        Scheduler.Resume(id);
+                        Scheduler.Resume(key);
 
                         AppendHtml(@"<pre>");
                         AppendHtml(@"Resume: {0}", Encode(id));
@@ -68,7 +70,7 @@ namespace Cronshop
             AppendHtml(@"<th style=""text-align: left;"">Last Result</th>");
             AppendHtml(@"</tr>");
 
-            foreach (JobInfo job in Scheduler.Jobs.OrderBy(x => x.FriendlyName))
+            foreach (JobInfo job in Scheduler.Jobs.OrderBy(x => x.JobDetail.Key.Name))
             {
                 string result = (job.LastResult != null) ? job.LastResult.ToString() : "n/a";
 
@@ -76,15 +78,15 @@ namespace Cronshop
 
                 string execute = string.Format("/cron/execute/{0}/{1}",
                     Token.GetNew(),
-                    Uri.EscapeDataString(job.JobDetail.Name));
+                    Uri.EscapeDataString(job.JobDetail.Key.ToString()));
 
                 string pause = string.Format("/cron/pause/{0}/{1}",
                     Token.GetNew(),
-                    Uri.EscapeDataString(job.JobDetail.Name));
+                    Uri.EscapeDataString(job.JobDetail.Key.ToString()));
 
                 string resume = string.Format("/cron/resume/{0}/{1}",
                     Token.GetNew(),
-                    Uri.EscapeDataString(job.JobDetail.Name));
+                    Uri.EscapeDataString(job.JobDetail.Key.ToString()));
 
                 AppendHtml(@"<td>");
                 AppendHtml(@"<a href=""{0}"">E</a> ", execute);
@@ -93,7 +95,7 @@ namespace Cronshop
                 AppendHtml(@"</td>");
 
                 AppendHtml("<td>{0}</td>", job.IsRunning ? @"R" : "");
-                AppendHtml("<td>{0}</td>", Encode(job.FriendlyName));
+                AppendHtml("<td>{0}</td>", Encode(job.JobDetail.Key.Name));
                 AppendHtml("<td>{0}</td>", Encode(ConvertTime(job.LastStarted)));
                 AppendHtml("<td>{0}</td>", Encode(ConvertTime(job.NextExecution)));
                 AppendHtml("<td>{0}</td>", Encode(ConvertDuration(job)));

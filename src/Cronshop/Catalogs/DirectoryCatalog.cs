@@ -131,7 +131,7 @@ namespace Cronshop.Catalogs
         {
             return Directory
                 .EnumerateFiles(DirectoryPath, SearchPattern, SearchOption)
-                .Select(f => new CronshopScript(f) {FriendlyName = Path.GetFileName(f)})
+                .Select(f => new CronshopScript(f))
                 .ToArray();
         }
 

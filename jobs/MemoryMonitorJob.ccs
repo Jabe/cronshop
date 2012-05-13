@@ -11,7 +11,7 @@ public class MemoryMonitorJob : CronshopJob
         config.AddCron("*/2 * * * * ?");
     }
     
-    public override object ExecuteJob(JobExecutionContext context)
+    public override object ExecuteJob(IJobExecutionContext context)
     {
         if (context != null)
         {

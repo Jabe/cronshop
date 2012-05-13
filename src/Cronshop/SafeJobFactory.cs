@@ -8,7 +8,7 @@ namespace Cronshop
     {
         #region IJobFactory Members
 
-        public IJob NewJob(TriggerFiredBundle bundle)
+        public IJob NewJob(TriggerFiredBundle bundle, IScheduler scheduler)
         {
             try
             {

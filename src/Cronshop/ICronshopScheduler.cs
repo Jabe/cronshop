@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Quartz;
 
 namespace Cronshop
 {
@@ -9,9 +10,9 @@ namespace Cronshop
 
         void Start();
         void Stop();
-        object ExecuteJob(string jobName);
-        void InterruptJob(string jobName);
-        void Pause(string jobName = null);
-        void Resume(string jobName = null);
+        object ExecuteJob(JobKey jobKey);
+        void InterruptJob(JobKey jobKey);
+        void Pause(JobKey jobKey = null);
+        void Resume(JobKey jobKey = null);
     }
 }

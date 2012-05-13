@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Quartz;
 
@@ -8,16 +7,16 @@ namespace Cronshop
 {
     public class MainJobMonitor : IJobListener
     {
-        private readonly ReadOnlyCollection<JobInfo> _jobInfo;
+        private readonly IDictionary<JobKey, JobInfo> _jobInfo;
 
-        public MainJobMonitor(ReadOnlyCollection<JobInfo> jobInfo)
+        public MainJobMonitor(IDictionary<JobKey, JobInfo> jobInfo)
         {
             _jobInfo = jobInfo;
         }
 
         #region IJobListener Members
 
-        public void JobToBeExecuted(JobExecutionContext context)
+        public void JobToBeExecuted(IJobExecutionContext context)
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
 
@@ -26,11 +25,11 @@ namespace Cronshop
             info.LastStarted = now;
         }
 
-        public void JobExecutionVetoed(JobExecutionContext context)
+        public void JobExecutionVetoed(IJobExecutionContext context)
         {
         }
 
-        public void JobWasExecuted(JobExecutionContext context, JobExecutionException jobException)
+        public void JobWasExecuted(IJobExecutionContext context, JobExecutionException jobException)
         {
             DateTimeOffset now = DateTimeOffset.UtcNow;
             JobInfo info = GetJobInfo(context);
@@ -53,9 +52,11 @@ namespace Cronshop
 
         #endregion
 
-        private JobInfo GetJobInfo(JobExecutionContext context)
+        private JobInfo GetJobInfo(IJobExecutionContext context)
         {
-            return _jobInfo.First(x => x.JobDetail.Name == context.JobDetail.Name);
+            JobInfo info;
+            _jobInfo.TryGetValue(context.JobDetail.Key, out info);
+            return info;
         }
     }
 }
