@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cronshop", "Cronshop\Cronshop.csproj", "{53824BA0-5A76-491F-B52F-4973FA744677}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cronshop.Shell", "Cronshop.Shell\Cronshop.Shell.csproj", "{65A9A0E8-C3DD-45AE-9EB9-A8DE85B69B7F}"
