@@ -21,6 +21,13 @@ namespace Cronshop
             throw new InvalidOperationException("Cannot construct job of type " + bundle.JobDetail.GetType().FullName);
         }
 
+        public void ReturnJob(IJob job)
+        {
+            using (job as IDisposable)
+            {
+            }
+        }
+
         #endregion
     }
 }
